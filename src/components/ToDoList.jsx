@@ -5,22 +5,17 @@ import ToDoListItem from './ToDoListItem';
 class ToDoList extends React.Component {
   constructor(props) {
     super(props);
+
+    let itemsFromLocalStorage = localStorage.getItem("toDoItems");
+    let items = (itemsFromLocalStorage === null) ? [] : JSON.parse(itemsFromLocalStorage);
+
     this.state = {
-      toDoItems: [
-        {
-          message: "Wash the dishes",
-          key: shortid.generate(),
-        },
-        {
-          message: "Feed the cats",
-          key: shortid.generate(),
-        },
-        {
-          message: "And another one",
-          key: shortid.generate(),
-        }
-      ]
+      toDoItems: items
     };
+  }
+
+  updateItemStorage() {
+    localStorage.setItem("toDoItems", JSON.stringify(this.state.toDoItems));
   }
 
   addToDoItem() {
@@ -31,7 +26,23 @@ class ToDoList extends React.Component {
     });
     this.setState({
       toDoItems: items
-    });
+    }, () => this.updateItemStorage());
+  }
+
+  updateToDoItem(id, message) {
+    let items = this.state.toDoItems.slice();
+    let idIndex = items.findIndex(item => item.key === id);
+    items[idIndex].message = message;
+    this.setState({
+      toDoItems: items
+    }, () => this.updateItemStorage());
+  }
+
+  removeToDoItem(id) {
+    let items = this.state.toDoItems.slice().filter(item => item.key !== id);
+    this.setState({
+      toDoItems: items
+    }, () => this.updateItemStorage());
   }
 
   render() {
@@ -40,16 +51,22 @@ class ToDoList extends React.Component {
         <ToDoListItem
           toDoMessage={item.message}
           key={item.key}
+          id={item.key}
           num={index + 1}
+          onChange={(id, message) => this.updateToDoItem(id, message)}
+          onRemoveButtonClick={id => this.removeToDoItem(id)}
         />
       );
     });
 
+    const message = (toDoItemComponents.length > 0) ? `${toDoItemComponents.length} items in todo list` : "Your list is empty. Add an item!";
+
     return (
       <>
-        <ul>
+        <p>{message}</p>
+        <ol>
           {toDoItemComponents}
-        </ul>
+        </ol>
         <button onClick={() => this.addToDoItem()}>Add Item</button>
       </>
     );
