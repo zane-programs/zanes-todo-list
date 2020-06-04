@@ -39,9 +39,15 @@ class ToDoList extends React.Component {
   }
 
   removeToDoItem(id) {
-    let items = this.state.toDoItems.slice().filter(item => item.key !== id);
+    let items = this.state.toDoItems.filter(item => item.key !== id);
     this.setState({
       toDoItems: items
+    }, () => this.updateItemStorage());
+  }
+
+  clearItems() {
+    this.setState({
+      toDoItems: []
     }, () => this.updateItemStorage());
   }
 
@@ -59,15 +65,29 @@ class ToDoList extends React.Component {
       );
     });
 
-    const message = (toDoItemComponents.length > 0) ? `${toDoItemComponents.length} items in todo list` : "Your list is empty. Add an item!";
+    // plural and is vs. are
+    const toBeConjugation = (toDoItemComponents.length === 1) ? "is" : "are";
+    const itemWordEnding = (toDoItemComponents.length === 1) ? "" : "s";
+    const message = (toDoItemComponents.length > 0) ? `There ${toBeConjugation} ${toDoItemComponents.length} item${itemWordEnding} in todo list` : "Your list is empty. Add an item!";
+    
+    // not sure if this is best practice. this is for bottom buttons
+    const bottomButtons = (toDoItemComponents.length > 0) ? (
+      <>
+        <button onClick={() => this.addToDoItem()}>Add Item</button>
+        <button onClick={() => this.clearItems()}>Clear List</button>
+      </>
+    ) : null;
 
     return (
       <>
         <p>{message}</p>
+        <button onClick={() => this.addToDoItem()}>Add Item</button>
         <ol>
           {toDoItemComponents}
         </ol>
-        <button onClick={() => this.addToDoItem()}>Add Item</button>
+        <div className="todo-bottom-buttons">
+          {bottomButtons}
+        </div>
       </>
     );
   }
