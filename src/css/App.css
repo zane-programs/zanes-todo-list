@@ -5,3 +5,7 @@ main.app-main {
 main.app-main h1 {
 	margin-top: 0px;
 }
+
+button.todo-item-remove {
+	margin-left: 5px;
+}
